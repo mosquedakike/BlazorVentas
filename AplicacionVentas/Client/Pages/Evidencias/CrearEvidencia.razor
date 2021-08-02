@@ -16,14 +16,6 @@
     private async Task Crear()
     {
         var httpResponse = await repositorio.Post("api/evidencias", Evidencia);
-        //if (httpResponse.Error)
-        //{
-        //    await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
-        //}
-        //else
-        //{
-        //    navigationManager.NavigateTo("/");
-        //}
 
         if (httpResponse.Error)
         {

@@ -1,0 +1,44 @@
+﻿@page "/clientes"
+@inject IRepositorio repositorio
+@attribute [Authorize(Roles = "ADMIN")]
+
+<h3>Clientes</h3>
+
+<hr />
+<div class="form-group">
+    <a class="btn btn-info" href="clientes/crear">Crear Cliente</a>
+</div>
+<hr />
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Estatus</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cliente in Clientes)
+        {
+            <tr>
+                <td>@cliente.ClienteId</td>
+                <td>@cliente.NombreCliente</td>
+                <td>@cliente.Estatus</td>
+                <td><a href="/clientes/editar/@cliente.ClienteId" class="btn btn-success">Actualizar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    //public List<EntidadCliente> Clientes { get; set; }
+    List<EntidadCliente> Clientes = new List<EntidadCliente>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadCliente>>("api/clientes");
+        Clientes = responseHttp.Response;
+    }
+}

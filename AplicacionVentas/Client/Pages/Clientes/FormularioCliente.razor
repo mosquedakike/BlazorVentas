@@ -1,0 +1,22 @@
+﻿
+<EditForm Model="Cliente" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <div class="form-group">
+        <label>Nombre del Cliente</label>
+        <InputText class="form-control" @bind-Value="@Cliente.NombreCliente"></InputText>
+        <ValidationMessage For="@(()=> Cliente.NombreCliente)"></ValidationMessage>
+    </div>
+    @*<div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked @bind-value="Cliente.Estatus">
+        <label class="form-check-label" for="flexSwitchCheckChecked">Activar Cliente</label>
+    </div>*@
+    <br />
+    <button class="btn btn-success" type="submit" >Guardar</button>
+</EditForm>
+
+@code {
+
+    [Parameter] public EntidadCliente Cliente { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+}

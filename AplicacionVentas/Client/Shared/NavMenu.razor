@@ -1,0 +1,99 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">Ventas</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu" style="color: white">
+    <ul class="nav flex-column">
+        <AuthorizeView Roles="VENDEDOR, ADMIN">
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="Logout" Match="NavLinkMatch.All">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Cerrar seisón
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </li>
+        <AuthorizeView Roles="VENDEDOR, ADMIN">
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="ventas/crear">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registrar Venta
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="ventasTotal/crear">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registrar venta total
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="evidencias/crear">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Registrar Evidencia
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="ADMIN">
+            <Authorized>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="evidencias/buscar">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Filtro Evidencias
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="evidencias/lista">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Lista de Evidencias
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="clientes">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Clientes
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="proyectos">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Proyectos
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="empleados">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Empleados
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="usuarios">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Usuarios
+                    </NavLink>
+                </li>
+            </Authorized>
+        </AuthorizeView>
+        @*<li class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            </NavLink>
+        </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </li>*@
+    </ul>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

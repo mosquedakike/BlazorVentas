@@ -1,0 +1,54 @@
+﻿@inject IRepositorio repositorio
+
+<EditForm Model="Venta" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <div class="form-group">
+        <label>Empleado</label>
+        <InputSelect class="form-control" @bind-Value="Venta.EmpleadoId">
+            <option value="">--Seleccione empleado--</option>
+            @foreach (var empleado in empleados)
+            {
+                <option value="@empleado.EmpleadoId">@empleado.NombreEmpleado @empleado.ApPaterno @empleado.ApMaterno</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Producto</label>
+        <InputText class="form-control" @bind-Value="Venta.NombreProducto"></InputText>
+        <ValidationMessage For="@(()=> Venta.NombreProducto)"></ValidationMessage>
+    </div>
+    <div class="form-group">
+        <label>Descripción</label>
+        <InputText @bind-Value="Venta.DescripcionProducto" class="form-control"></InputText>
+        <ValidationMessage For="@(()=> Venta.DescripcionProducto)"></ValidationMessage>
+    </div>
+    <div class="form-group">
+        <label>Cantidad</label>
+        <InputNumber @bind-Value="Venta.Cantidad" class="form-control" min="1"></InputNumber>
+        <ValidationMessage For="@(()=> Venta.Cantidad)"></ValidationMessage>
+    </div>
+    <div class="form-group">
+        <label>Fecha</label>
+        <InputDate @bind-Value="Venta.FechaVenta" class="form-control" min="2021-01-01"></InputDate>
+        <ValidationMessage For="@(()=> Venta.FechaVenta)"></ValidationMessage>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter] public EntidadVenta Venta { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    List<EntidadEmpleado> empleados = new List<EntidadEmpleado>();
+
+    protected override void OnInitialized()
+    {
+        Venta.FechaCaptura = DateTime.Now;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadEmpleado>>("api/empleados/lista");
+        empleados = responseHttp.Response;
+    }
+}

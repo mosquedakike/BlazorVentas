@@ -1,0 +1,23 @@
+﻿@inject IJSRuntime js
+
+<div style="display: flex; flex-wrap: wrap; align-items: center;">
+    <ListadoGenerico Listado="Evidencias">
+        <HayRegistros Context="evidencia">
+            <EvidenciaIndividual Evidencia="evidencia"/>
+        </HayRegistros>
+    </ListadoGenerico>
+</div>
+
+@code {
+    [Parameter] public List<EntidadEvidencia> Evidencias { get; set; }
+
+    //async Task EliminarEvidencia(EntidadEvidencia evidencia)
+    //{
+    //    var confirmar = await js.Confirm($"¿Desea borrar la evidencia {evidencia.EvidenciaId}?");
+    //    if (confirmar)
+    //    {
+    //        Evidencias.Remove(evidencia);
+    //        Console.WriteLine($"Se ha eliminado la evidencia {evidencia.EvidenciaId}");
+    //    }
+    //}
+}

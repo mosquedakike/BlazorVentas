@@ -1,0 +1,51 @@
+﻿@inject IRepositorio repositorio
+
+<EditForm Model="Evidencia" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <div class="form-group">
+        <label>Empleado</label>
+        <InputSelect class="form-control" @bind-Value="Evidencia.EmpleadoId">
+            <option value="">--Seleccione empleado--</option>
+            @foreach (var empleado in empleados)
+            {
+                <option value="@empleado.EmpleadoId">@empleado.NombreEmpleado @empleado.ApPaterno @empleado.ApMaterno</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <InputImg Label="Foto" ImagenSeleccionada="ImagenSeleccionada" ImagenURL="@imagenURL" />
+        <ValidationMessage For="@(()=> Evidencia.Foto)"></ValidationMessage>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter] public EntidadEvidencia Evidencia { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    private string imagenURL;
+
+    List<EntidadEmpleado> empleados = new List<EntidadEmpleado>();
+
+    protected override void OnInitialized()
+    {
+        Evidencia.FechaCaptura = DateTime.Now;
+        if (!string.IsNullOrWhiteSpace(Evidencia.Foto))
+        {
+            imagenURL = Evidencia.Foto;
+            Console.WriteLine(imagenURL);
+            Evidencia.Foto = null;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadEmpleado>>("api/empleados/lista");
+        empleados = responseHttp.Response;
+    }
+
+    private void ImagenSeleccionada(string imagenBase64)
+    {
+        Evidencia.Foto = imagenBase64;
+        imagenURL = null;
+    }
+}

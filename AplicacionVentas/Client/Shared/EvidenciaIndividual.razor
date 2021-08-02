@@ -1,0 +1,17 @@
+﻿<div style="margin-right: 2%; margin-bottom: 10px; text-align: center; @*border: 1px solid grey;*@">
+    <a href="@Evidencia.Foto" target="_blank">
+        <img src="@Evidencia.Foto" alt="Poster" style="width: 225px; height:300px;" />
+    </a>
+    <p style="max-width: 225px; height: 44px; font-size: 15px; font-weight: bold;">@Evidencia.Empleado.NombreEmpleado @Evidencia.Empleado.ApPaterno @Evidencia.Empleado.ApMaterno</p>
+    <p style="max-width: 225px; height: 44px; font-size: 15px; font-weight: bold;">@Evidencia.FechaCaptura</p>
+</div>
+
+@code {
+    [Parameter] public EntidadEvidencia Evidencia { get; set; }
+    private string urlEvidencia = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        //urlEvidencia = $"evidencia/{Evidencia?.EvidenciaId}/{Evidencia?.Empleado.NombreEmpleado?.Replace(" ", "-")}";
+    }
+}

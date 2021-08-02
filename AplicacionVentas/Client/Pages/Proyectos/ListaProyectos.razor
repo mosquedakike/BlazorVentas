@@ -1,0 +1,45 @@
+﻿@page "/proyectos"
+@inject IRepositorio repositorio
+@attribute [Authorize(Roles = "ADMIN")]
+
+<h3>Proyectos</h3>
+
+<hr />
+<div class="form-group">
+    <a class="btn btn-info" href="proyectos/crear">Crear Proyecto</a>
+</div>
+<hr />
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nombre del Proyecto</th>
+            <th>Municipio</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var proyecto in Proyectos)
+        {
+            <tr>
+                <td>@proyecto.ProyectoId</td>
+                <td>@proyecto.NombreProyecto</td>
+                <td>@proyecto.Municipio</td>
+                <td><a href="proyectos/editar/@proyecto.ProyectoId" class="btn btn-success">Actualizar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@code {
+    //public List<EntidadProyecto> Proyectos { get; set; }
+    List<EntidadProyecto> Proyectos = new List<EntidadProyecto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadProyecto>>("api/proyectos");
+        Proyectos = responseHttp.Response;
+    }
+}

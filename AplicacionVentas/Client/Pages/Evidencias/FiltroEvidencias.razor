@@ -1,0 +1,147 @@
+﻿@page "/evidencias/buscar"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+
+<h3>Evidencias</h3>
+<hr />
+
+<div class="form-inline">
+    <div class="form-group mb-2">
+        <label for="nombre" class="sr-only">Nombre</label>
+        <input @bind-value="nombre" @bind-value:event="oninput"
+               @onkeypress="@((KeyboardEventArgs e) => NombreKeyPress(e))"
+               type="text" class="form-control" id="nombre" placeholder="Empleado" />
+    </div>
+    <div class="form-group mx-sm-3 mb-2">
+        <select class="form-control" @bind="proyectoSeleccionado">
+            <option value="0">--Seleccione un proyecto--</option>
+            @foreach (var item in proyectos)
+            {
+                <option value="@item.ProyectoId">@item.NombreProyecto</option>
+            }
+        </select>
+    </div>
+    <div class="form-group mx-sm-3 mb-2">
+        <label for="example-date-input" class="col-2 col-form-label">De</label>
+        <div>
+            <input class="form-control" type="date" @bind-value="@fechaInicio" id="example-date-input">
+        </div>
+    </div>
+    <div class="form-group mx-sm-3 mb-2">
+        <label for="example-date-input" class="col-2 col-form-label">A</label>
+        <div>
+            <input class="form-control" type="date" @bind-value="@fechaFin" id="example-date-input">
+        </div>
+    </div>
+    <button type="button" class="btn btn-primary mb-2 mx-sm-3" @onclick="CargarNuevasEvidencias">Filtrar</button>
+    <button type="button" class="btn btn-danger mb-2" @onclick="LimpiarOnClick">Limpiar</button>
+</div>
+<hr />
+<Paginacion PaginaActual="paginaActual" PaginasTotales="paginasTotales"
+            PaginaSeleccionada="PaginaSeleccionada" />
+
+<ListadoEvidencia Evidencias="evidencias"></ListadoEvidencia>
+
+@code {
+    List<EntidadEvidencia> evidencias = new List<EntidadEvidencia>();
+    List<EntidadProyecto> proyectos = new List<EntidadProyecto>();
+    string nombre = "";
+    string proyectoSeleccionado = "0";
+    DateTime? fechaInicio;
+    DateTime? fechaFin;
+    private int paginaActual = 1;
+    private int paginasTotales;
+    Dictionary<string, string> queryStringsDict = new Dictionary<string, string>();
+
+    private async Task NombreKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            //await
+            CargarNuevasEvidencias();
+        }
+    }
+
+    private void LlenarCampos()
+    {
+        if (queryStringsDict.ContainsKey("nombre"))
+        {
+            nombre = queryStringsDict["nombre"];
+        }
+
+        if (queryStringsDict.ContainsKey("proyectoId"))
+        {
+            proyectoSeleccionado = queryStringsDict["proyectoId"];
+        }
+
+        if (queryStringsDict.ContainsKey("fechaInicio"))
+        {
+            proyectoSeleccionado = queryStringsDict["fechaInicio"];
+        }
+
+        if (queryStringsDict.ContainsKey("fechaFin"))
+        {
+            proyectoSeleccionado = queryStringsDict["fechaFin"];
+        }
+
+        if (queryStringsDict.ContainsKey("pagina"))
+        {
+            int.TryParse(queryStringsDict["pagina"], out paginaActual);
+        }
+    }
+
+    private async Task PaginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await CargarNuevasEvidencias();
+    }
+
+    private async Task CargarNuevasEvidencias()
+    {
+        var queryStrings = GenerarQueryStrings();
+        navigationManager.NavigateTo("/evidencias/buscar?" + queryStrings);
+        await RealizarBusqueda(queryStrings);
+    }
+
+    private async Task RealizarBusqueda(string queryStrings)
+    {
+        var httpResponse = await repositorio.Get<List<EntidadEvidencia>>("api/evidencias/filtrar?" + queryStrings);
+        paginasTotales = int.Parse(httpResponse.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+        evidencias = httpResponse.Response;
+    }
+
+    private string GenerarQueryStrings()
+    {
+        if (queryStringsDict == null) { queryStringsDict = new Dictionary<string, string>(); }
+        queryStringsDict["proyectoId"] = proyectoSeleccionado;
+        queryStringsDict["nombre"] = nombre;
+        queryStringsDict["fechaInicio"] = fechaInicio.ToString();
+        queryStringsDict["fechaFin"] = fechaFin.ToString();
+        queryStringsDict["pagina"] = paginaActual.ToString();
+
+        var valoresPorDefecto = new List<string>() { "0", "", "", "", "0" };
+
+        return string.Join("&", queryStringsDict
+            .Where(x => !valoresPorDefecto.Contains(x.Value.ToUpper()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadProyecto>>("api/proyectos");
+        proyectos = responseHttp.Response;
+
+        var responseHttp2 = await repositorio.Get<List<EntidadEvidencia>>("api/evidencias");
+        evidencias = responseHttp2.Response;
+    }
+
+    private async Task LimpiarOnClick()
+    {
+        nombre = "";
+        proyectoSeleccionado = "0";
+        paginaActual = 1;
+        fechaInicio = DateTime.Today;
+        fechaFin = DateTime.Today;
+        await CargarNuevasEvidencias();
+    }
+}

@@ -1,0 +1,108 @@
+﻿@page "/empleados"
+@inject IRepositorio repositorio
+@attribute [Authorize(Roles = "ADMIN")]
+
+<h3>Empleados</h3>
+
+<hr />
+<div class="form-group">
+    <a class="btn btn-info" href="empleados/crear">Crear Empleado</a>
+</div>
+<hr />
+
+<div class="form-inline">
+    <label class="sr-only" for="nombre-filtro">Filtrar</label>
+    <input type="text" class="form-control mb-2 mr-sm-2"
+           @bind="nombreEmpleadoFiltro" placeholder="Nombre" />
+    <input type="text" class="form-control mb-2 mr-sm-2"
+           @bind="ApPaternoEmpleadoFiltro" placeholder="Apellido Paterno" />
+    <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+            @onclick="Filtrar">
+        Filtrar
+    </button>
+    <button type="button" class="btn btn-danger mb-2"
+            @onclick="Limpiar">
+        Limpiar
+    </button>
+</div>
+<hr />  
+<Paginacion PaginaActual="paginaActual" PaginaSeleccionada="paginaSeleccionada" PaginasTotales="paginasTotales"></Paginacion>
+<hr />
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th>Proyecto</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var empleado in Empleados)
+        {
+            <tr>
+                <td>@empleado.EmpleadoId</td>
+                <td>@empleado.NombreEmpleado @empleado.ApPaterno @empleado.ApMaterno</td>
+                <td>@empleado.PuestoEmpleado</td>
+                <td>@empleado.Proyecto.NombreProyecto</td>
+                <td><a href="empleados/editar/@empleado.EmpleadoId" class="btn btn-success">Actualizar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    List<EntidadEmpleado> Empleados = new List<EntidadEmpleado>();
+
+    //public List<EntidadEmpleado> Empleados { get; set; }
+    private int paginaActual = 1;
+    private int paginasTotales;
+    private string nombreEmpleadoFiltro = string.Empty;
+    private string ApPaternoEmpleadoFiltro = string.Empty;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await Cargar();
+    }
+
+    private async Task paginaSeleccionada(int pagina)
+    {
+        paginaActual = pagina;
+        await Cargar(pagina);
+    }
+
+    private async Task Filtrar()
+    {
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    private async Task Limpiar()
+    {
+        nombreEmpleadoFiltro = string.Empty;
+        ApPaternoEmpleadoFiltro = string.Empty;
+        paginaActual = 1;
+        await Cargar();
+    }
+
+    private async Task Cargar(int pagina = 1)
+    {
+        var responseHttp = await repositorio.Get<List<EntidadEmpleado>>($"api/empleados?pagina={pagina}&nombre={nombreEmpleadoFiltro}&paterno={ApPaternoEmpleadoFiltro}");
+        if (!responseHttp.Error)
+        {
+            Empleados = responseHttp.Response;
+            var conteo = responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault();
+            paginasTotales = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("totalPaginas").FirstOrDefault());
+
+            Console.WriteLine($"conteo: {conteo}; totalPaginas: {paginasTotales}");
+        }
+    }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    var responseHttp = await repositorio.Get<List<EntidadEmpleado>>("api/empleados");
+    //    Empleados = responseHttp.Response;
+
+    //}
+}

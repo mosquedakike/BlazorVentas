@@ -1,0 +1,56 @@
+﻿@page "/clientes/editar/{ClienteId:int}"
+@inject IMostrarMensajes mostrarMensaje
+@inject NavigationManager navigationManager
+@inject IRepositorio repositorio
+@attribute [Authorize(Roles = "ADMIN")]
+
+<h3>Actualizar Cliente</h3>
+
+@if (Cliente == null)
+{
+    <text>Cargando...</text>
+}
+else
+{
+    <FormularioCliente OnValidSubmit="ActualizarCliente" Cliente="Cliente"></FormularioCliente>
+}
+
+
+@code {
+    [Parameter] public int ClienteId { get; set; }
+    private EntidadCliente Cliente { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpResponse = await repositorio.Get<EntidadCliente>($"api/clientes/{ClienteId}");
+
+        if (httpResponse.Error)
+        {
+            if (httpResponse.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                navigationManager.NavigateTo("clientes");
+            }
+            else
+            {
+                await mostrarMensaje.MostrarMensajeError(await httpResponse.GetBody());
+            }
+        }
+        else
+        {
+            Cliente = httpResponse.Response;
+        }
+    }
+
+    private async Task ActualizarCliente()
+    {
+        var httpResponse = await repositorio.Put("api/clientes", Cliente);
+        if (httpResponse.Error)
+        {
+            await mostrarMensaje.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo("clientes");
+        }
+    }
+}

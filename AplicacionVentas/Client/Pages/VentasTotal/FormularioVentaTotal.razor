@@ -1,0 +1,45 @@
+﻿@inject IRepositorio repositorio
+
+<EditForm Model="VentaTotal" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <div class="form-group">
+        <label>Empleado</label>
+        <InputSelect class="form-control" @bind-Value="VentaTotal.EmpleadoId">
+            <option value="">--Seleccione empleado--</option>
+            @foreach (var empleado in empleados)
+            {
+                <option value="@empleado.EmpleadoId">@empleado.NombreEmpleado @empleado.ApPaterno @empleado.ApMaterno</option>
+            }
+        </InputSelect>
+    </div>
+        <div class="form-group">
+            <label>Cantidad</label>
+            <InputNumber @bind-Value="VentaTotal.Cantidad" class="form-control" min="1"></InputNumber>
+            <ValidationMessage For="@(()=> VentaTotal.Cantidad)"></ValidationMessage>
+        </div>
+        <div class="form-group">
+            <label>Fecha</label>
+            <InputDate @bind-Value="VentaTotal.FechaVenta" class="form-control" min="2021-01-01"></InputDate>
+            <ValidationMessage For="@(()=> VentaTotal.FechaVenta)"></ValidationMessage>
+        </div>
+        <button class="btn btn-success" type="submit">Guardar</button>
+</EditForm>
+
+@code {
+
+    [Parameter] public EntidadVentaTotal VentaTotal { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    List<EntidadEmpleado> empleados = new List<EntidadEmpleado>();
+
+    protected override void OnInitialized()
+    {
+        VentaTotal.FechaCaptura = DateTime.Now;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var responseHttp = await repositorio.Get<List<EntidadEmpleado>>("api/empleados/lista");
+        empleados = responseHttp.Response;
+    }
+}

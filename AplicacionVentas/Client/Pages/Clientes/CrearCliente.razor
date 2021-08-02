@@ -1,0 +1,25 @@
+﻿@page "/clientes/crear"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensajes mostrarMensajes
+@attribute [Authorize(Roles = "ADMIN")]
+
+<h3>Registrar Cliente</h3>
+<FormularioCliente OnValidSubmit="Crear" Cliente="Cliente"></FormularioCliente>
+
+@code {
+    private EntidadCliente Cliente = new EntidadCliente();
+
+    private async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/clientes", Cliente);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            navigationManager.NavigateTo("/clientes");
+        }
+    }
+}

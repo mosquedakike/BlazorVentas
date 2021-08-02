@@ -1,0 +1,30 @@
+﻿@page "/ventasTotal/crear"
+@inject IRepositorio repositorio
+@inject NavigationManager navigationManager
+@inject IMostrarMensajes mostrarMensajes
+@attribute [Authorize(Roles = "VENDEDOR, ADMIN")]
+
+
+<hr />
+<h3>Registrar venta del día</h3>
+<hr />
+
+<FormularioVentaTotal OnValidSubmit="Crear" VentaTotal="VentaTotal"></FormularioVentaTotal>
+
+
+@code {private EntidadVentaTotal VentaTotal = new EntidadVentaTotal();
+
+    private async Task Crear()
+    {
+        var httpResponse = await repositorio.Post("api/ventastotal", VentaTotal);
+        if (httpResponse.Error)
+        {
+            await mostrarMensajes.MostrarMensajeError(await httpResponse.GetBody());
+        }
+        else
+        {
+            await mostrarMensajes.MostrarMensajeExitoso("Venta Registrada");
+            navigationManager.NavigateTo("/");
+        }
+    }
+}
